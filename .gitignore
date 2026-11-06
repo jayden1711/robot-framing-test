@@ -1,0 +1,7 @@
+results/
+.venv/
+__pycache__/
+*.pyc
+*.gguf
+models/
+.pytest_cache/
