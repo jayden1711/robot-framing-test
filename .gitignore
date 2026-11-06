@@ -5,3 +5,5 @@ __pycache__/
 *.gguf
 models/
 .pytest_cache/
+*.log
+.claude/worktrees/

@@ -1,4 +1,7 @@
 # HANDOFF: robot-framing-test (2026-11-06)
+Status: Sim, sandbox and blind scorer done; Qwen3-Coder weights downloaded; pilot not started
+Next: Serve Qwen through gpu-run, run the 50-generation pilot, stop for approval
+Updated: 2026-11-06
 
 Repo: `jayden1711/robot-framing-test` (public). Clones: Mac `~/Downloads/projects/robot-framing-test`,
 NUC `~/projects/robot-framing-test` (user `jayden`, via `ssh nuc-admin`).
