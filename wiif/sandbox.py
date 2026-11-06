@@ -54,9 +54,14 @@ def _cmd(code_path: Path, sandbox: bool) -> list[str]:
             "--symlink", "usr/lib", "/lib", "--symlink", "usr/lib64", "/lib64",
             "--symlink", "usr/bin", "/bin",
             "--proc", "/proc", "--dev", "/dev", "--tmpfs", "/tmp"]
-    for p in {prefix, base_prefix}:
-        if not str(p).startswith("/usr"):
-            args += ["--ro-bind", str(p), str(p)]
+    if not str(base_prefix).startswith("/usr"):
+        raise RuntimeError(f"sandbox expects the system Python under /usr, got {base_prefix}")
+    if prefix != base_prefix:
+        # venv: mount it at a neutral path so nothing under /home is visible
+        args += ["--ro-bind", str(prefix), "/opt/venv"]
+        py = "/opt/venv/bin/python"
+    else:
+        py = str(Path(sys.executable).resolve())
     args += ["--ro-bind", str(CHILD), "/sandbox/child.py",
              "--ro-bind", str(code_path.resolve()), "/sandbox/controller.py",
              "--chdir", "/tmp",

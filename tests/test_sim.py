@@ -84,3 +84,8 @@ def test_classify():
     assert classify("Here is an overview of the approach, no code.")[0] == "non_code"
     kind, code = classify("```python\nclass Controller:\n    def step(self, o):\n        return (0,")
     assert kind == "code" and "class Controller" in code
+
+
+@pytest.mark.skipif(not SB, reason="bwrap sandbox only on Linux")
+def test_numpy_available_in_sandbox():
+    assert run("numpy_ok.py")["end_reason"] == "time_limit"
