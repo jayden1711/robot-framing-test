@@ -25,7 +25,7 @@ fi
 
 # models (pinned revisions; see PLAN.md)
 dl() { # repo revision file
-  [ -f "$MODELS/$3" ] || nice -n 10 .venv/bin/hf download "$1" "$3" --revision "$2" --local-dir "$MODELS" >/dev/null
+  [ -f "$MODELS/$3" ] || nice -n 10 .venv/bin/hf download "$1" "$3" --revision "$2" --local-dir "$MODELS" >/dev/null 2>&1
   sha256sum "$MODELS/$3" | tee -a "$MODELS/SHA256SUMS.wiif"
 }
 case "${1:-qwen}" in

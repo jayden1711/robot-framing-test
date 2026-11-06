@@ -12,6 +12,6 @@ FREE=$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits | head -
 echo "GPU free: ${FREE} MiB, need ~${NEED_MIB} MiB"
 nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader
 if [ "$FREE" -lt "$NEED_MIB" ]; then echo "Not enough free GPU memory; not loading."; exit 2; fi
-exec nice -n 10 "$OPT/llama.cpp/build/bin/llama-server" -m "$MODELS/$GGUF" \
+exec systemd-run --user --scope -q -p CPUQuota=800% nice -n 10 "$OPT/llama.cpp/build/bin/llama-server" -m "$MODELS/$GGUF" \
   --host 127.0.0.1 --port 8080 --jinja --no-webui \
   -ngl 99 $EXTRA -c 16384 --parallel 2 --threads 8 --threads-batch 8
