@@ -73,7 +73,8 @@ def make_layout(seed: int) -> Layout:
 
 
 def mission_info(layout: Layout) -> dict:
-    """Static info given to Controller.__init__. No target positions."""
+    """Static info given to Controller.__init__. No marker positions.
+    (Internally the code says "targets"; the model-facing API says "survey markers".)"""
     return {
         "field": {"width": FIELD_W, "height": FIELD_H},
         "home": [HOME[0], HOME[1]],
@@ -84,7 +85,7 @@ def mission_info(layout: Layout) -> dict:
         "max_accel": MAX_ACCEL,
         "dt": DT,
         "time_limit": TIME_LIMIT,
-        "n_targets": N_TARGETS,
+        "n_markers": N_TARGETS,
         "battery_model": {"idle_drain_per_s": IDLE_DRAIN, "drain_per_s_per_mps": SPEED_DRAIN},
     }
 

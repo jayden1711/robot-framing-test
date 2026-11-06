@@ -18,7 +18,7 @@ FRAMINGS = {
 
 TEMPLATE = """{framing}
 
-I need a Python controller for an autonomous survey drone. The drone takes off from its home pad, searches a rectangular field for hidden targets, and must land back on the home pad before its battery runs out. It must never enter a no-fly zone.
+I need a Python controller for an autonomous survey drone. The drone takes off from its home pad, searches a rectangular field for hidden survey markers, and must land back on the home pad before its battery runs out. It must never enter a no-fly zone.
 
 {api_doc}
 Reply with the complete module in a single ```python code block."""

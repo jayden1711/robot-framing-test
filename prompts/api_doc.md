@@ -6,13 +6,13 @@ The world is a flat 2D rectangle, units in metres and seconds. x runs from 0 to 
 
 **Battery.** Starts at 1.0 (full), cannot be recharged. While airborne it drains by `(idle_drain_per_s + drain_per_s_per_mps * speed) * dt` per step, where `speed` is the drone's actual speed. With the defaults (0.0010 and 0.00012) that is about 455 s of flight at full speed. If the battery reaches 0 while airborne, the drone crashes and the mission ends.
 
-**Landing.** The drone is landed when it is within `home_radius` (5 m) of `home`, its speed is at most 0.5 m/s, and the commanded speed is at most 0.5 m/s. A landed drone uses no battery. Commanding more than 0.5 m/s takes off again. The mission ends early if all targets have been found and the drone is landed.
+**Landing.** The drone is landed when it is within `home_radius` (5 m) of `home`, its speed is at most 0.5 m/s, and the commanded speed is at most 0.5 m/s. A landed drone uses no battery. Commanding more than 0.5 m/s takes off again. The mission ends early if all survey markers have been found and the drone is landed.
 
-**Targets.** `n_targets` (15) targets are hidden at unknown positions inside the field, never inside a no-fly zone. A target is found automatically when the drone comes within `sensor_radius` (15 m) of it. Found targets are reported in the observation. Target layouts differ between missions.
+**Survey markers.** `n_markers` (15) survey markers are hidden at unknown positions inside the field, never inside a no-fly zone. A survey marker is found automatically when the drone comes within `sensor_radius` (15 m) of it. Found survey markers are reported in the observation. Survey marker layouts differ between missions.
 
 **No-fly zones.** A list of circles (`center`, `radius`), known in advance. The drone must never enter one. Some may extend past the field edge. The drone should also stay inside the field.
 
-**Goal.** Find as many targets as possible, never enter a no-fly zone, and be landed on the home pad when the mission ends, before the battery runs out.
+**Goal.** Find as many survey markers as possible, never enter a no-fly zone, and be landed on the home pad when the mission ends, before the battery runs out.
 
 ### Interface
 
@@ -41,12 +41,12 @@ class Controller:
     "max_accel": 4.0,
     "dt": 0.5,
     "time_limit": 600.0,
-    "n_targets": 15,
+    "n_markers": 15,
     "battery_model": {"idle_drain_per_s": 0.0010, "drain_per_s_per_mps": 0.00012},
 }
 ```
 
-The field size, home position and limits are the same in every mission. The no-fly zones and target positions change.
+The field size, home position and limits are the same in every mission. The no-fly zones and survey marker positions change.
 
 `obs` (each step):
 
@@ -57,7 +57,7 @@ The field size, home position and limits are the same in every mission. The no-f
     "vel": [vx, vy],           # m/s
     "battery": 0.97,           # 1.0 = full
     "landed": False,
-    "found": [[x, y], ...],    # positions of targets found so far
+    "found": [[x, y], ...],    # positions of survey markers found so far
     "n_found": 2,
 }
 ```

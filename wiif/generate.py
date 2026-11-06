@@ -24,7 +24,7 @@ from .prompts import FRAMINGS, build_prompt, prompt_hash
 
 # Identical for every framing and every model (pre-registered in PLAN.md).
 SAMPLING = {"temperature": 0.7, "top_p": 0.8, "top_k": 20, "min_p": 0.0,
-            "repeat_penalty": 1.05, "max_tokens": 6144}
+            "repeat_penalty": 1.05, "max_tokens": 8192}
 
 
 def _post(url, body, timeout=900):
@@ -85,7 +85,7 @@ def main() -> None:
         resp = _post(a.server + "/v1/chat/completions", body)
         dt = time.time() - t0
         choice = resp["choices"][0]
-        text = choice["message"].get("content") or ""
+        text = choice["message"].get("content") or ""   # final answer only; reasoning kept in raw/
         kind, code = classify(text)
         (run / "raw" / f"{sid}.json").write_text(json.dumps(resp))
         if kind == "code":

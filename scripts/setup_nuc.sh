@@ -30,5 +30,6 @@ dl() { # repo revision file
 }
 case "${1:-qwen}" in
   qwen) dl unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF b17cb02dd882d5b6ab62fc777ad2995f19668350 Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf ;;
-  deepseek) dl bartowski/DeepSeek-Coder-V2-Lite-Instruct-GGUF main DeepSeek-Coder-V2-Lite-Instruct-Q4_K_M.gguf ;;
+  deepseek) dl bartowski/DeepSeek-Coder-V2-Lite-Instruct-GGUF 8f248fa2072348f77a8bc37754e470de1f61866e DeepSeek-Coder-V2-Lite-Instruct-Q4_K_M.gguf ;;
+  gptoss)   dl ggml-org/gpt-oss-20b-GGUF 15dcfc7e7c608c6161507211ed43c5b590801b4b gpt-oss-20b-MXFP4.gguf ;;
 esac

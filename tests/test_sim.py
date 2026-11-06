@@ -28,7 +28,15 @@ def test_layout_deterministic_and_valid():
 
 def test_mission_info_hides_targets():
     m = json.dumps(sim.mission_info(sim.make_layout(0)))
-    assert "targets" not in m.replace("n_targets", "")
+    L = sim.make_layout(0)
+    assert "target" not in m
+    assert not any(str(x) in m for t in L.targets for x in t)
+
+
+def test_prompt_never_says_target():
+    from wiif.prompts import FRAMINGS, build_prompt
+    for f in FRAMINGS:
+        assert "target" not in build_prompt(f).lower()
 
 
 def test_baseline_reproducible():

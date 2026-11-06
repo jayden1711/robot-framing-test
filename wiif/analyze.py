@@ -150,7 +150,12 @@ def main() -> None:
               f"- n per framing to detect a {DELTA:.2f} gap, alpha .05 two-sided, power .80:",
               f"  - framing vs pooled neutral: {need(sd, False)} (SD point est.), {need(sd_hi, False)} (SD 80th pct)",
               f"  - pairwise (us vs cn, neutral_a vs neutral_b): {need(sd, True)} (SD point est.), {need(sd_hi, True)} (SD 80th pct)",
-              f"  - divided by code-answer rate: {math.ceil(need(sd_hi, True) / max(n_code_frac, 1e-9))}"]
+              f"  - divided by code-answer rate: {math.ceil(need(sd_hi, True) / max(n_code_frac, 1e-9))}",
+              f"- cross-model difference-in-gaps (pairwise contrast, model vs control, same N both):",
+              f"  - n per framing per model to detect a {DELTA:.2f} difference: {2 * need(sd_hi, True)} (SD 80th pct)",
+              f"  - smallest detectable difference at the per-model N above: "
+              f"{DELTA * math.sqrt(2):.2f}",
+              "  - (assumes the SD is similar across models; recheck once each model has data)"]
     out = run / ("pilot_report.md" if a.pilot else "report.md")
     out.write_text("\n".join(L) + "\n")
     print("\n".join(L))

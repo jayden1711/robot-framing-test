@@ -158,7 +158,7 @@ class Controller:
         if not self.returning:
             t_left = self.m["time_limit"] - obs["t"]
             need = self._need_home(pos)
-            if (obs["n_found"] >= self.m["n_targets"] or obs["battery"] < need * 1.15 + 0.03
+            if (obs["n_found"] >= self.m["n_markers"] or obs["battery"] < need * 1.15 + 0.03
                     or t_left < need / self.drain_fast + 20):
                 self.returning = True
         if not self.returning:
