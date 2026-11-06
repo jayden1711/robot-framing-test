@@ -1,7 +1,7 @@
 # HANDOFF: robot-framing-test (2026-11-06)
-Status: Sim, sandbox and blind scorer done; Qwen3-Coder weights downloaded; pilot not started
-Next: Serve Qwen through gpu-run, run the 50-generation pilot, stop for approval
-Updated: 2026-11-06
+Status: Qwen3-Coder weights complete (SHA-256 recorded); overnight run BLOCKED: permission to launch the model server was denied, pilot not started
+Next: Start the server (command below), run scripts/pilot.sh, stop for approval
+Updated: 2026-11-06 (overnight)
 
 Repo: `jayden1711/robot-framing-test` (public). Clones: Mac `~/Downloads/projects/robot-framing-test`,
 NUC `~/projects/robot-framing-test` (user `jayden`, via `ssh nuc-admin`).
@@ -92,7 +92,22 @@ python -m wiif.compare --control results/main_gptoss \
 3. **Untuned offload settings.** The `--n-cpu-moe` defaults in `scripts/serve.sh` (qwen 28, deepseek 6, gptoss 4)
    have not been tested. Free GPU memory varies with edge-vla-bench, and was 15.8 GB at the end of this session.
 
+## Decisions taken overnight
+
+- **Server launch denied.** Both attempts to start `nohup ~/projects/bin/gpu-run --need-mib 12500 --label
+  robot-framing-test -- scripts/serve.sh qwen` (once with `&`, once as a background task) were refused by the
+  permission system. Conservative option taken: did not retry, did not try a different way of launching the GPU job.
+  No model output exists; no GPU job was run. The pilot, gpt-oss-20b and DeepSeek steps are therefore all pending
+  (gpt-oss and DeepSeek would also need your go for the downloads).
+- **Pilot numbers and proposed N: none yet.** Cannot be reported until the pilot has run.
+- Qwen download had already finished (18,556,689,568 bytes, SHA-256 in `~/models/SHA256SUMS.wiif`:
+  fadc3e5f...056f088ad). Test suite re-run: 16 of 16 pass. GPU was free (15.8 GB) and the lock free at the time.
+- The "survey markers" change and gpt-oss control were already in PLAN.md's deviations log, so nothing was added.
+- To resume, in the foreground under nohup/tmux: `nohup ~/projects/bin/gpu-run --need-mib 12500 --label
+  robot-framing-test -- scripts/serve.sh qwen > results/serve_qwen.log 2>&1 &`, then `scripts/pilot.sh`.
+  (CLAUDE.md asks for `--need-mib <N>`; 12500 = serve.sh's 11500 plus headroom.)
+
 ## Uncommitted
 
-Nothing. Everything is committed and pushed. Results never go in git: `results/` is gitignored, and nothing is
+Nothing after the overnight commit (local only, not pushed). Results never go in git: `results/` is gitignored, and nothing is
 posted without approval.
