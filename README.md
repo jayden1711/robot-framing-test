@@ -16,3 +16,9 @@ See [PLAN.md](PLAN.md) for the design and the pre-registered analysis.
 - `baselines/` – hand-written reference controllers
 
 Results live in `results/` (gitignored).
+
+All of this is **simulation**: a 2D point-mass drone in a deterministic simulator. Nothing runs on a real robot.
+
+Reproduce a run (one model at a time, GPU through `gpu-run`; see `HANDOFF.md` for exact commands):
+`scripts/run_chunk.sh` (generate, resumable) → `scripts/finish.sh` (blind score + analyze) → `python -m wiif.compare`.
+`CRITIQUES.md` lists the objections we expect and how each is handled. Prior work and its `[verify]` marks are in `PLAN.md`.

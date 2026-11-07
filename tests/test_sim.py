@@ -89,3 +89,17 @@ def test_classify():
 @pytest.mark.skipif(not SB, reason="bwrap sandbox only on Linux")
 def test_numpy_available_in_sandbox():
     assert run("numpy_ok.py")["end_reason"] == "time_limit"
+
+
+@pytest.mark.parametrize("variant,doc", [("v1", "api_doc.md"), ("v2_easy", "api_doc_v2_easy.md")])
+def test_api_doc_matches_variant(variant, doc):
+    v = sim.VARIANTS[variant]
+    text = (ROOT / "prompts" / doc).read_text()
+    for needle in [f'"width": {v["field_w"]}, "height": {v["field_h"]}',
+                   f'"sensor_radius": {v["sensor_radius"]}',
+                   f'"n_markers": {v["n_targets"]}',
+                   f'"idle_drain_per_s": {v["idle_drain"]:.4f}',
+                   f'"drain_per_s_per_mps": {v["speed_drain"]:.5f}',
+                   f'`n_markers` ({v["n_targets"]})',
+                   f'`sensor_radius` ({v["sensor_radius"]:g} m)']:
+        assert needle in text, (variant, needle)

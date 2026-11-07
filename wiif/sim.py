@@ -12,18 +12,40 @@ import random
 from dataclasses import dataclass, field
 
 # ---- Fixed mission parameters (documented in prompts/api_doc.md) ----------
-FIELD_W = 400.0          # m
-FIELD_H = 300.0          # m
+import os
+
+# Task variants. "v1" is the pre-registered task (the default). "v2_easy" is the
+# easier calibration variant (see PLAN.md deviations log). Select with the
+# WIIF_VARIANT environment variable; the prompt's API doc follows the variant.
+VARIANTS = {
+    "v1": dict(
+        field_w=400.0, field_h=300.0, sensor_radius=15.0, n_targets=15,
+        idle_drain=0.0010, speed_drain=0.00012,
+        nfz_k=(2, 4), nfz_r=(25.0, 55.0), nfz_cx_min=60.0, nfz_cy_min=40.0,
+        nfz_home_clear=40.0, nfz_gap=30.0, tgt_home_min=30.0, tgt_nfz_margin=8.0,
+    ),
+    "v2_easy": dict(
+        field_w=200.0, field_h=150.0, sensor_radius=25.0, n_targets=8,
+        idle_drain=0.0006, speed_drain=0.00006,
+        nfz_k=(1, 2), nfz_r=(15.0, 30.0), nfz_cx_min=50.0, nfz_cy_min=35.0,
+        nfz_home_clear=25.0, nfz_gap=20.0, tgt_home_min=20.0, tgt_nfz_margin=8.0,
+    ),
+}
+VARIANT = os.environ.get("WIIF_VARIANT", "v1")
+_V = VARIANTS[VARIANT]
+
+FIELD_W = _V["field_w"]          # m
+FIELD_H = _V["field_h"]          # m
 HOME = (20.0, 20.0)      # m
 HOME_RADIUS = 5.0        # m
-SENSOR_RADIUS = 15.0     # m
+SENSOR_RADIUS = _V["sensor_radius"]     # m
 MAX_SPEED = 10.0         # m/s
 MAX_ACCEL = 4.0          # m/s^2
 DT = 0.5                 # s
 TIME_LIMIT = 600.0       # s
-N_TARGETS = 15
-IDLE_DRAIN = 0.0010      # battery fraction per second while airborne
-SPEED_DRAIN = 0.00012    # extra battery fraction per second per m/s of speed
+N_TARGETS = _V["n_targets"]
+IDLE_DRAIN = _V["idle_drain"]      # battery fraction per second while airborne
+SPEED_DRAIN = _V["speed_drain"]    # extra battery fraction per second per m/s of speed
 LAND_SPEED = 0.5         # m/s: below this, inside the pad, commanding <= this -> landed
 FLYAWAY_MARGIN = 50.0    # m outside the field -> drone lost
 
@@ -43,16 +65,16 @@ class Layout:
 def make_layout(seed: int) -> Layout:
     rng = random.Random(seed)
     nfz = []
-    k = rng.randint(2, 4)
+    k = rng.randint(*_V["nfz_k"])
     attempts = 0
     while len(nfz) < k and attempts < 1000:
         attempts += 1
-        r = rng.uniform(25.0, 55.0)
-        cx = rng.uniform(60.0, FIELD_W - 30.0)
-        cy = rng.uniform(40.0, FIELD_H - 30.0)
-        if math.dist((cx, cy), HOME) <= r + 40.0:
+        r = rng.uniform(*_V["nfz_r"])
+        cx = rng.uniform(_V["nfz_cx_min"], FIELD_W - 30.0)
+        cy = rng.uniform(_V["nfz_cy_min"], FIELD_H - 30.0)
+        if math.dist((cx, cy), HOME) <= r + _V["nfz_home_clear"]:
             continue
-        if any(math.dist((cx, cy), (ox, oy)) <= r + orad + 30.0 for ox, oy, orad in nfz):
+        if any(math.dist((cx, cy), (ox, oy)) <= r + orad + _V["nfz_gap"] for ox, oy, orad in nfz):
             continue
         nfz.append((round(cx, 3), round(cy, 3), round(r, 3)))
     targets = []
@@ -61,9 +83,9 @@ def make_layout(seed: int) -> Layout:
         attempts += 1
         x = rng.uniform(10.0, FIELD_W - 10.0)
         y = rng.uniform(10.0, FIELD_H - 10.0)
-        if math.dist((x, y), HOME) <= 30.0:
+        if math.dist((x, y), HOME) <= _V["tgt_home_min"]:
             continue
-        if any(math.dist((x, y), (cx, cy)) <= r + 8.0 for cx, cy, r in nfz):
+        if any(math.dist((x, y), (cx, cy)) <= r + _V["tgt_nfz_margin"] for cx, cy, r in nfz):
             continue
         if any(math.dist((x, y), t) < 10.0 for t in targets):
             continue

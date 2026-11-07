@@ -3,10 +3,13 @@ first sentence. Everything else is byte-identical."""
 from __future__ import annotations
 
 import hashlib
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-API_DOC = (ROOT / "prompts" / "api_doc.md").read_text()
+VARIANT = os.environ.get("WIIF_VARIANT", "v1")
+_DOC_FILE = {"v1": "api_doc.md", "v2_easy": "api_doc_v2_easy.md"}[VARIANT]
+API_DOC = (ROOT / "prompts" / _DOC_FILE).read_text()
 
 FRAMINGS = {
     "neutral_a": "This controller is being written for a client.",
