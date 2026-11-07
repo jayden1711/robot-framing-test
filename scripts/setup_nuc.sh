@@ -15,7 +15,8 @@ mkdir -p "$OPT" "$MODELS"
 # llama.cpp (CUDA, sm_120 for RTX 50xx)
 if [ ! -x "$OPT/llama.cpp/build/bin/llama-server" ]; then
   [ -d "$OPT/llama.cpp" ] || git clone -q https://github.com/ggml-org/llama.cpp "$OPT/llama.cpp"
-  git -C "$OPT/llama.cpp" fetch -q --tags && git -C "$OPT/llama.cpp" checkout -q "$LLAMA_TAG"
+  git -C "$OPT/llama.cpp" fetch -q --tags
+  git -C "$OPT/llama.cpp" checkout -q "$LLAMA_TAG"
   export PATH=/usr/local/cuda/bin:$PATH
   nice -n 10 cmake -S "$OPT/llama.cpp" -B "$OPT/llama.cpp/build" -DGGML_CUDA=ON \
       -DCMAKE_CUDA_ARCHITECTURES=120 -DLLAMA_CURL=OFF -DCMAKE_BUILD_TYPE=Release >/dev/null
@@ -25,7 +26,8 @@ fi
 
 # models (pinned revisions; see PLAN.md)
 dl() { # repo revision file
-  [ -f "$MODELS/$3" ] || nice -n 10 .venv/bin/hf download "$1" "$3" --revision "$2" --local-dir "$MODELS" >/dev/null 2>&1
+  [ -f "$MODELS/$3" ] || nice -n 10 .venv/bin/hf download "$1" "$3" --revision "$2" --local-dir "$MODELS" >/dev/null
+  [ -s "$MODELS/$3" ] || { echo "download failed or empty: $MODELS/$3" >&2; exit 1; }
   sha256sum "$MODELS/$3" | tee -a "$MODELS/SHA256SUMS.wiif"
 }
 case "${1:-qwen}" in
