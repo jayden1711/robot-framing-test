@@ -20,7 +20,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from .extract import classify
-from .prompts import FRAMINGS, build_prompt, prompt_hash
+from .prompts import FRAMINGS, VARIANT, build_prompt, prompt_hash
 
 # Identical for every framing and every model (pre-registered in PLAN.md).
 SAMPLING = {"temperature": 0.7, "top_p": 0.8, "top_k": 20, "min_p": 0.0,
@@ -47,7 +47,11 @@ def main() -> None:
     ap.add_argument("--server", default="http://127.0.0.1:8080")
     ap.add_argument("--order-seed", type=int, default=0)
     ap.add_argument("--concurrency", type=int, default=2)
+    ap.add_argument("--max-seconds", type=float, default=None,
+                    help="stop starting new generations after this many seconds (in-flight ones finish); "
+                         "re-running resumes")
     a = ap.parse_args()
+    deadline = time.time() + a.max_seconds if a.max_seconds else None
 
     run = Path(a.run)
     (run / "raw").mkdir(parents=True, exist_ok=True)
@@ -63,6 +67,8 @@ def main() -> None:
         "model_tag": a.model_tag,
         "sampling": SAMPLING,
         "prompt_hash": prompt_hash(),
+        "task_variant": VARIANT,
+        "order_seed": a.order_seed,
         "framings": FRAMINGS,
         "git_commit": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True,
                                      text=True).stdout.strip(),
@@ -77,6 +83,8 @@ def main() -> None:
 
     def one(job):
         framing, rep = job
+        if deadline and time.time() > deadline:
+            return None
         sid = secrets.token_hex(6)
         seed = random.Random(f"{a.model_tag}|{framing}|{rep}").randrange(2**31)
         body = {"messages": [{"role": "user", "content": build_prompt(framing)}],
@@ -97,6 +105,8 @@ def main() -> None:
 
     with ThreadPoolExecutor(a.concurrency) as ex, open(key_path, "a") as kf:
         for i, rec in enumerate(ex.map(one, jobs)):
+            if rec is None:
+                continue
             kf.write(json.dumps(rec) + "\n")
             kf.flush()
             print(f"[{i + 1}/{len(jobs)}] {rec['kind']:8s} {rec['completion_tokens']} tok "

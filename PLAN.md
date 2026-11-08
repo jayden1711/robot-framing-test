@@ -9,14 +9,26 @@ Written 2026-11-06, before any model output was generated. Changes after this po
 
 ## Prior work (we extend this; we do not claim to be first)
 
-- **Hirundo (2026).** Qwen3-Coder wrote web apps that were exploitable 70% of the time when the customer was "a US
-  defense contractor" vs 59% for "a Chinese defense contractor". Adding a security instruction did not close the gap.
-- **CrowdStrike (Nov 2025), Booz Allen (May 2026).** Similar customer- and topic-dependent code-quality effects in
-  Chinese coding models.
+- **Hirundo (case study, 21 Oct 2026).** Qwen3-Coder-30B-A3B-Instruct wrote web services that were exploitable 70% of
+  the time when the customer was "a US defense contractor" vs 59% for "a Chinese defense contractor". Only one phrase
+  in a *system prompt* changed. Adding a security instruction did not close the gap. We know it from press coverage
+  of the case study; [verify] against the primary text. Differences from this repo: we test robot control code in
+  simulation, we use a user message with no system prompt, and we add a non-Chinese control model.
+- **Booz Allen (May 2026).** Reported that most of the Chinese coding models they tested wrote more vulnerable code
+  when told it was for US government users. [verify] exact models and numbers against the primary source.
+- **CrowdStrike (Nov 2025).** Similar topic-dependent code-quality effects in a Chinese coding model. [verify]
+  details against the primary source.
+- **MIT weight-space post (Takehi, Teoh, Zhang, Khattab, 2 Nov 2026).** Listed by the owner as related work on where
+  such effects live in model weights. [verify]: not found by web search, so its content and relevance are unchecked.
+  Our design does not touch weights; it only measures outputs.
 - **Prompt-framing studies on code.** For example, urgency framing lowers correctness. Also OpenAI's Astra result
-  (safety vs capabilities framing).
+  (safety vs capabilities framing). [verify] citations.
 - **Robot safety benchmarks (SimHarm, SafeAgentBench).** These measure whether a model refuses, not the quality of the
-  code it writes.
+  code it writes. [verify] citations.
+
+Considered and not cited because they do not bear on this design (LLM code quality by stated customer, scored in a
+drone-search simulation): PicoGPT, vla.cpp, RoboStriker (arXiv 2601.22517, humanoid boxing), URMA / MetaMorph
+(cross-embodiment control), Text2Robot (text-to-robot design).
 
 **Our gap:** robot control code, scored by how well the robot actually does the job in simulation.
 
@@ -241,3 +253,5 @@ pushed. Results, plots and write-ups are not pushed or posted until approved.
 | 2026-11-06 | Model-facing text says "survey markers" instead of "targets" (prompt, API doc, API key `n_targets` → `n_markers`). | "Targets" may itself suggest military use and interact with the framings. Changed before any model output existed. |
 | 2026-11-06 | Added gpt-oss-20b as a non-Chinese control model and the cross-model difference-in-gaps analysis. Dropped the optional 2-bit Qwen3-Coder-Next arm. | Separates reactions specific to Chinese models from a general reaction to the customer. Decided before any model output existed. |
 | 2026-11-06 | max_tokens 6144 → 8192 for all models; context 20,480 tokens over 2 slots. | Room for gpt-oss reasoning plus a full answer. Same for every model and framing. Before any model output existed. |
+| 2026-11-06 | Final N = 80 per framing for every model (400 generations each); DeepSeek-Coder-V2-Lite stays in the design. Main runs use new model-tag suffix `-main` and order seeds 3001 (Qwen), 3002 (gpt-oss), 3003 (DeepSeek), one model on the GPU at a time. | Owner decision. N is sized for a 10-point within-model gap; the cross-model difference-in-gaps detects only about 14 points. Logged before any main-run output existed. |
+| 2026-11-06 | **Floor-effect check: task stays v1.** An easier variant (`WIIF_VARIANT=v2_easy`: 200 × 150 m field, sensor radius 25 m, 8 markers, 1–2 no-fly zones, gentler battery; `prompts/api_doc_v2_easy.md`) was calibrated with 5 generations per framing per model (never part of the main analysis). Rule set beforehand: switch only if mean scores land around 0.3–0.6. They did not, so the original task is kept. Evidence: `results/calibration_v2/summary.md` and per-model reports (git-ignored). | Pilot scores were far below the hand-written baseline (floor effect). The variant did not move models into the usable range, so switching would add a task change with no benefit. The `v2_easy` code stays in the repo, off by default. Logged before any main-run output existed. |
